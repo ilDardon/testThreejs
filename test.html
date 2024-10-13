@@ -86,25 +86,6 @@
 
 				} );
 
-				loader.load( './models/ply/binary/Lucy100k.ply', function ( geometry ) {
-
-					geometry.computeVertexNormals();
-
-					const material = new THREE.MeshStandardMaterial( { color: 0x009cff, flatShading: true } );
-					const mesh = new THREE.Mesh( geometry, material );
-
-					mesh.position.x = - 0.2;
-					mesh.position.y = - 0.02;
-					mesh.position.z = - 0.2;
-					mesh.scale.multiplyScalar( 0.0006 );
-
-					mesh.castShadow = true;
-					mesh.receiveShadow = true;
-
-					scene.add( mesh );
-
-				} );
-
 				// Lights
 
 				scene.add( new THREE.HemisphereLight( 0x8d7c7c, 0x494966, 3 ) );
