@@ -40,9 +40,11 @@ class App{
 	}	
     
     initScene(){
-        this.geometry = new THREE.BoxBufferGeometry( 0.06, 0.06, 0.06 ); 
-        this.geometry2 = new THREE.SphereBufferGeometry(0.05);
-        this.geometry3 = new THREE.ConeBufferGeometry(0.05, 0.06);
+        this.geometries = [
+            new THREE.BoxBufferGeometry(0.06, 0.06, 0.06),
+            new THREE.SphereBufferGeometry(0.05, 32, 32),
+            new THREE.ConeBufferGeometry(0.05, 0.06, 32)
+        ];
         this.meshes = [];
     }
     
@@ -53,23 +55,18 @@ class App{
         let controller;
         
         function onSelect() {
-            const material = new THREE.MeshStandardMaterial( {color: 0xffffff * Math.random(), metalness: 1 } );
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xffffff * Math.random(),
+                metalness: 0.5
+            });
 
-            const mesh = new THREE.Mesh( self.geometry, material );
-            mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-            mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+            const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
+            const mesh = new THREE.Mesh(randomGeometry, material);
+            mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
+            mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
 
-            const mesh2 = new THREE.Mesh( self.geometry2, material );
-            mesh2.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-            mesh2.quaternion.setFromRotationMatrix( controller.matrixWorld );
-
-            const mesh3 = new THREE.Mesh( self.geometry3, material );
-            mesh3.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-            mesh3.quaternion.setFromRotationMatrix( controller.matrixWorld );
-
-            var temporalMesh = [mesh, mesh2, mesh3][Math.floor(Math.random() * 3)];
-            self.scene.add( temporalMesh );
-            self.meshes.push( temporalMesh );
+            self.scene.add(mesh);
+            self.meshes.push(mesh);
         }
 
         const btn = new ARButton( this.renderer );
