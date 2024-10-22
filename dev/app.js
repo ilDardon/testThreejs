@@ -2,6 +2,7 @@ import * as THREE from '../libs/three125/three.module.js';
 import { OrbitControls } from '../libs/three125/OrbitControls.js';
 import { Stats } from '../libs/stats.module.js';
 import { ARButton } from '../libs/ARButton.js';
+
 import { GLTFLoader } from '../testlibs/GLTFLoader.js';
 import { DRACOLoader } from '../testlibs/DRACOLoader.js';
 
@@ -68,6 +69,7 @@ class App{
         }
 
         const btn = new ARButton( this.renderer );
+        console.log(btn);
         
         controller = this.renderer.xr.getController( 0 );
         controller.addEventListener( 'select', onSelect );
@@ -77,9 +79,9 @@ class App{
     }
 
     loadGLTF(){
-        const loader = new GLTFLoader().setPath('../../assets/');
+        const loader = new GLTFLoader().setPath('../assets/');
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath( '../../libs/three/examples/jsm/libs/draco/' );
+        dracoLoader.setDecoderPath( '../testlibs/draco/' );
         loader.setDRACOLoader( dracoLoader );
 
         // Cargar el caballero
