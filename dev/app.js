@@ -41,8 +41,8 @@ class App{
     
     initScene(){
         this.geometry = new THREE.BoxBufferGeometry( 0.06, 0.06, 0.06 ); 
-        this.geometry2 = new THREE.SphereBufferGeometry( 0.5 );
-        this.geometry3 = new THREE.ConeBufferGeometry(0.5);
+        this.geometry2 = new THREE.SphereBufferGeometry(0.05);
+        this.geometry3 = new THREE.ConeBufferGeometry(0.05, 0.06);
         this.meshes = [];
     }
     
