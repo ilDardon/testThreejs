@@ -7,7 +7,6 @@ import { LoadingBar } from '../testlibs/LoadingBar.js';
 import { GLTFLoader } from '../testlibs/GLTFLoader.js';
 import { DRACOLoader } from '../testlibs/DRACOLoader.js';
 
-
 class App {
     constructor() {
         const container = document.createElement('div');
@@ -52,7 +51,6 @@ class App {
     }
 
     setupVR() {
-        console.log('Setting up VR');
         this.renderer.xr.enabled = true;
 
         const self = this;
@@ -121,7 +119,6 @@ class App {
     }
 
     render(timestamp, frame) {
-        console.log('Rendering');
         this.stats.update();
         
         if (this.renderer.xr.isPresenting) {
