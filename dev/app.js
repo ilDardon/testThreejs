@@ -55,17 +55,21 @@ class App{
         function onSelect() {
             const material = new THREE.MeshStandardMaterial( {color: 0xffffff * Math.random(), metalness: 1 } );
 
-            const mesh = [new THREE.Mesh( self.geometry, material ), new THREE.Mesh( self.geometry2, material ), new THREE.Mesh( self.geometry3, material )];
-            mesh[0].position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-            mesh[0].quaternion.setFromRotationMatrix( controller.matrixWorld );
-            mesh[1].position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-            mesh[1].quaternion.setFromRotationMatrix( controller.matrixWorld );
-            mesh[2].position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-            mesh[2].quaternion.setFromRotationMatrix( controller.matrixWorld );
-            temporalMesh = mesh[(Math.floor(Math.random() * mesh.length))];
+            const mesh = new THREE.Mesh( self.geometry, material );
+            mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
+            mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
+
+            const mesh2 = new THREE.Mesh( self.geometry2, material );
+            mesh2.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
+            mesh2.quaternion.setFromRotationMatrix( controller.matrixWorld );
+
+            const mesh3 = new THREE.Mesh( self.geometry3, material );
+            mesh3.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
+            mesh3.quaternion.setFromRotationMatrix( controller.matrixWorld );
+
+            var temporalMesh = [mesh, mesh2, mesh3][Math.floor(Math.random() * 3)];
             self.scene.add( temporalMesh );
             self.meshes.push( temporalMesh );
-
         }
 
         const btn = new ARButton( this.renderer );
