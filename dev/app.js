@@ -5,123 +5,113 @@ import { ARButton } from '../libs/ARButton.js';
 import { GLTFLoader } from '../testlibs/GLTFLoader.js';
 import { DRACOLoader } from '../testlibs/DRACOLoader.js';
 
-class App {
-    constructor() {
-        const container = document.createElement('div');
-        document.body.appendChild(container);
+class App{
+    constructor(){
+        const container = document.createElement( 'div' );
+        document.body.appendChild( container );
 
         this.clock = new THREE.Clock();
-
-        this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-
+        this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
         this.scene = new THREE.Scene();
+        
+        // Iluminación
+        this.scene.add( new THREE.HemisphereLight( 0x606060, 0x404040 ) );
+        const light = new THREE.DirectionalLight( 0xffffff );
+        light.position.set( 1, 1, 1 ).normalize();
+        this.scene.add( light );
 
-        this.scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
-
-        const light = new THREE.DirectionalLight(0xffffff);
-        light.position.set(1, 1, 1).normalize();
-        this.scene.add(light);
-
+        // Renderizador
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
         this.renderer.outputEncoding = THREE.sRGBEncoding;
+        container.appendChild( this.renderer.domElement );
 
-        container.appendChild(this.renderer.domElement);
-
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        // Controles de la cámara
+        this.controls = new OrbitControls( this.camera, this.renderer.domElement );
         this.controls.target.set(0, 3.5, 0);
         this.controls.update();
 
+        // Estadísticas
         this.stats = new Stats();
 
         this.initScene();
         this.setupVR();
+        
+        window.addEventListener('resize', this.resize.bind(this) );
+    }	
 
-        window.addEventListener('resize', this.resize.bind(this));
-    }
-
-    initScene() {
+    initScene(){
         this.geometries = [
             new THREE.BoxBufferGeometry(0.1, 0.1, 0.1),
             new THREE.SphereBufferGeometry(0.1, 64, 64),
             new THREE.ConeBufferGeometry(0.1, 0.06, 64, 64)
         ];
         this.meshes = [];
+        this.loadGLTF();
     }
-
-    setupVR() {
-        this.renderer.xr.enabled = true;
-
+    
+    setupVR(){
+        this.renderer.xr.enabled = true; 
+        
         const self = this;
         let controller;
-
+        
         function onSelect() {
-            const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
-
+            const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random(), shininess: 0.7 } );
             const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
             const mesh = new THREE.Mesh(randomGeometry, material);
             mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
             mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
-
             self.scene.add(mesh);
             self.meshes.push(mesh);
         }
 
-        // Crear botón de AR y agregarlo al documento
-        const btn = ARButton.createButton(this.renderer);
-        document.body.appendChild(btn);
+        const btn = new ARButton( this.renderer );
+        
+        controller = this.renderer.xr.getController( 0 );
+        controller.addEventListener( 'select', onSelect );
+        this.scene.add( controller );
 
-        // Configurar el controlador para seleccionar objetos
-        controller = this.renderer.xr.getController(0);
-        controller.addEventListener('select', onSelect);
-        this.scene.add(controller);
-
-        // Cargar el caballero después de que se inicia AR
-        this.renderer.xr.addEventListener('sessionstart', () => {
-            self.loadGLTF(); // Cargar caballero cuando AR se activa
-        });
-
-        this.renderer.setAnimationLoop(this.render.bind(this));
+        this.renderer.setAnimationLoop( this.render.bind(this) );
     }
 
-    loadGLTF() {
-        const loader = new GLTFLoader().setPath('../assets/');
+    loadGLTF(){
+        const loader = new GLTFLoader().setPath('../../assets/');
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('../testlibs/draco/');
-        loader.setDRACOLoader(dracoLoader);
+        dracoLoader.setDecoderPath( '../../libs/three/examples/jsm/libs/draco/' );
+        loader.setDRACOLoader( dracoLoader );
 
-        loader.load('knight.glb', (gltf) => {
-            this.knight = gltf.scene;
+        // Cargar el caballero
+        loader.load(
+            'knight.glb',
+            gltf => {
+                this.knight = gltf.scene;
+                this.mixer = new THREE.AnimationMixer(this.knight);
+                const clip = gltf.animations[0]; // Cargar la primera animación ("Dance")
+                const action = this.mixer.clipAction(clip);
+                action.play();
 
-            // Configura el modelo para AR
-            this.knight.position.set(0, 0, -0.5); // Ajusta la posición del modelo en AR
-
-            this.scene.add(this.knight);
-
-            this.mixer = new THREE.AnimationMixer(this.knight);
-            const danceClip = gltf.animations.find(clip => clip.name.toLowerCase() === 'dance');
-            if (danceClip) {
-                const action = this.mixer.clipAction(danceClip);
-                action.play(); // Reproduce la animación 'Dance' automáticamente
+                this.knight.position.set(0, 0, -0.5); // Posicionar el caballero al frente en AR
+                this.scene.add(this.knight);
+            },
+            undefined,
+            err => {
+                console.error(err);
             }
-        }, undefined, (err) => {
-            console.error('Error loading GLTF model', err);
-        });
+        );
     }
 
-    resize() {
+    resize(){
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize( window.innerWidth, window.innerHeight );  
     }
 
-    render() {
-        this.stats.update();
-
+    render(){
         const dt = this.clock.getDelta();
         if (this.mixer) this.mixer.update(dt);
-
+        this.stats.update();
         this.meshes.forEach((mesh) => { mesh.rotateY(0.01); });
         this.renderer.render(this.scene, this.camera);
     }
