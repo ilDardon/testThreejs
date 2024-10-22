@@ -94,18 +94,11 @@ class App{
             'knight.glb',
             gltf => {
                 this.knight = gltf.scene;
-                this.mixer = new THREE.AnimationMixer(this.knight);
-                const clip = gltf.animations[0]; // Cargar la primera animación ("Dance")
-                const action = this.mixer.clipAction(clip);
-                action.play();
-
                 this.knight.position.set(0, 0, -0.5); // Posicionar el caballero al frente en AR
                 this.scene.add(this.knight);
             },
             xhr => {
-
-				this.loadingBar.progress = (xhr.loaded / xhr.total);
-				
+		this.loadingBar.progress = (xhr.loaded / xhr.total);
 			},
             err => {
                 console.error(err);
@@ -120,8 +113,6 @@ class App{
     }
 
     render(){
-        const dt = this.clock.getDelta();
-        if (this.mixer) this.mixer.update(dt);
         this.stats.update();
         this.meshes.forEach((mesh) => { mesh.rotateY(0.01); });
         this.renderer.render(this.scene, this.camera);
