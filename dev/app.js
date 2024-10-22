@@ -90,22 +90,41 @@ class App {
 
         loader.load(
             'knight.glb',
-            gltf => {
-                this.knight = gltf.scene;
-                this.knight.position.set(0, 0, -0.5);
-                this.scene.add(this.knight);
+            (gltf) => {
+            console.log('GLTF model loaded successfully');
+            this.knight = gltf.scene;
+            
+            // Ajusta la escala si es necesario
+            this.knight.scale.set(0.1, 0.1, 0.1);
+            
+            // Posiciona el caballero frente a la cámara
+            this.knight.position.set(0, 0, -1);
+            
+            // Asegúrate de que el caballero mire hacia la cámara
+            this.knight.quaternion.setFromRotationMatrix(
+                new THREE.Matrix4().lookAt(
+                    new THREE.Vector3(0, 0, -1),
+                    new THREE.Vector3(0, 0, 0),
+                    new THREE.Vector3(0, 1, 0)
+                )
+            );
 
-                this.mixer = new THREE.AnimationMixer(this.knight);
-                if (gltf.animations && gltf.animations.length > 0) {
-                    const clip = gltf.animations[0];
-                    this.action = this.mixer.clipAction(clip);
-                    this.action.play();
-                } else {
-                    console.warn('No animations found in the GLTF file');
-                }
+            this.scene.add(this.knight);
+            console.log('Knight added to the scene');
 
-                this.loadingBar.visible = false;
-            },
+            // Configura las animaciones
+            this.mixer = new THREE.AnimationMixer(this.knight);
+            if (gltf.animations && gltf.animations.length > 0) {
+                console.log(`Found ${gltf.animations.length} animations`);
+                const clip = gltf.animations[0];
+                this.action = this.mixer.clipAction(clip);
+                this.action.play();
+            } else {
+                console.warn('No animations found in the GLTF file');
+            }
+
+            this.loadingBar.visible = false;
+        },
             xhr => {
                 this.loadingBar.progress = (xhr.loaded / xhr.total);
             },
