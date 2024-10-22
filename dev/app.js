@@ -84,7 +84,7 @@ class App {
     loadGLTF() {
         const loader = new GLTFLoader().setPath('../assets/');
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('../libs/draco/');
+        dracoLoader.setDecoderPath('../testlibs/draco/');
         loader.setDRACOLoader(dracoLoader);
 
         loader.load(
