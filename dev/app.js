@@ -83,24 +83,29 @@ class App{
         this.renderer.setAnimationLoop( this.render.bind(this) );
     }
 
-    loadGLTF(){
+     loadGLTF(){
         const loader = new GLTFLoader().setPath('../assets/');
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath( '../testlibs/draco/' );
         loader.setDRACOLoader( dracoLoader );
 
-	let key;
+        // Cargar el caballero
+        loader.load(
+            'knight.glb',
+            gltf => {
+                this.knight = gltf.scene;
+                this.knight.position.set(0, 0, -0.5); // Posicionar el caballero al frente en AR
+                this.scene.add(this.knight);
+            },
+            xhr => {
 
-	loader.load('knight.glb', function (gltf) {
-          const model = gltf.scene;
-
-          mixer = new THREE.AnimationMixer(model);
-          mixer.clipAction(gltf.animations[0]).play();
-
-          key = gltf.scene;
-        });
-
-	    
+				this.loadingBar.progress = (xhr.loaded / xhr.total);
+				
+			},
+            err => {
+                console.error(err);
+            }
+        );
     }
 
     resize(){
