@@ -7,6 +7,7 @@ import { LoadingBar } from '../testlibs/LoadingBar.js';
 import { GLTFLoader } from '../testlibs/GLTFLoader.js';
 import { DRACOLoader } from '../testlibs/DRACOLoader.js';
 
+
 class App {
     constructor() {
         const container = document.createElement('div');
@@ -70,7 +71,7 @@ class App {
             }
         }
 
-        const btn = new ARButton(this.renderer);
+        const btn = new ARButton(this.renderer, { sessionInit: { requiredFeatures: ['hit-test'], optionalFeatures: ['dom-overlay'], domOverlay: { root: document.body } } });
 
         controller = this.renderer.xr.getController(0);
         controller.addEventListener('select', onSelect);
@@ -93,9 +94,13 @@ class App {
                 this.scene.add(this.knight);
 
                 this.mixer = new THREE.AnimationMixer(this.knight);
-                const clip = gltf.animations[0];
-                this.action = this.mixer.clipAction(clip);
-                this.action.play();
+                if (gltf.animations && gltf.animations.length > 0) {
+                    const clip = gltf.animations[0];
+                    this.action = this.mixer.clipAction(clip);
+                    this.action.play();
+                } else {
+                    console.warn('No animations found in the GLTF file');
+                }
 
                 this.loadingBar.visible = false;
             },
@@ -114,8 +119,23 @@ class App {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    render() {
+    render(timestamp, frame) {
         this.stats.update();
+        
+        if (this.renderer.xr.isPresenting) {
+            const session = this.renderer.xr.getSession();
+            const pose = frame.getViewerPose(session.referenceSpace);
+            
+            if (pose) {
+                const view = pose.views[0];
+                const viewport = session.renderState.baseLayer.getViewport(view);
+                this.renderer.setViewport(viewport.x, viewport.y, viewport.width, viewport.height);
+                this.camera.matrix.fromArray(view.transform.matrix);
+                this.camera.projectionMatrix.fromArray(view.projectionMatrix);
+                this.camera.updateMatrixWorld(true);
+            }
+        }
+
         this.meshes.forEach((mesh) => { mesh.rotateY(0.01); });
         
         if (this.mixer) {
