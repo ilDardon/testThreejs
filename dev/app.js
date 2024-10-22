@@ -89,21 +89,18 @@ class App{
         dracoLoader.setDecoderPath( '../testlibs/draco/' );
         loader.setDRACOLoader( dracoLoader );
 
-        // Cargar el caballero
-        loader.load(
-            'knight.glb',
-            gltf => {
-                this.knight = gltf.scene;
-                this.knight.position.set(0, 0, -0.5); // Posicionar el caballero al frente en AR
-                this.scene.add(this.knight);
-            },
-            xhr => {
-		this.loadingBar.progress = (xhr.loaded / xhr.total);
-			},
-            err => {
-                console.error(err);
-            }
-        );
+	let key;
+
+	loader.load('knight.glb', function (gltf) {
+          const model = gltf.scene;
+
+          mixer = new THREE.AnimationMixer(model);
+          mixer.clipAction(gltf.animations[0]).play();
+
+          key = gltf.scene;
+        });
+
+	    
     }
 
     resize(){
