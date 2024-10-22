@@ -3,6 +3,7 @@ import { OrbitControls } from '../libs/three125/OrbitControls.js';
 import { Stats } from '../libs/stats.module.js';
 import { ARButton } from '../libs/ARButton.js';
 
+import { LoadingBar } from '../testlibs/LoadingBar.js';
 import { GLTFLoader } from '../testlibs/GLTFLoader.js';
 import { DRACOLoader } from '../testlibs/DRACOLoader.js';
 
@@ -36,6 +37,7 @@ class App{
         // Estadísticas
         this.stats = new Stats();
 
+        this.loadingBar = new LoadingBar();
         this.initScene();
         this.setupVR();
         
@@ -97,7 +99,11 @@ class App{
                 this.knight.position.set(0, 0, -0.5); // Posicionar el caballero al frente en AR
                 this.scene.add(this.knight);
             },
-            undefined,
+            xhr => {
+
+				this.loadingBar.progress = (xhr.loaded / xhr.total);
+				
+			},
             err => {
                 console.error(err);
             }
