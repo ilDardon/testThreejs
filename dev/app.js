@@ -53,7 +53,7 @@ class App{
         let controller;
         
         function onSelect() {
-            const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
+            const material = new THREE.MeshStandardMaterial( {color: 0xffffff * Math.random(), metalness: 1 } );
 
             const mesh = [new THREE.Mesh( self.geometry, material ), new THREE.Mesh( self.geometry2, material ), new THREE.Mesh( self.geometry3, material )];
             mesh[0].position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
