@@ -1,12 +1,9 @@
 import * as THREE from '../libs/three125/three.module.js';
 import { OrbitControls } from '../libs/three125/OrbitControls.js';
-import { Stats } from '../libs/stats.module.js';
 import { ARButton } from '../libs/ARButton.js';
 
 import { GLTFLoader } from '../testlibs/GLTFLoader.js';
 import { DRACOLoader } from '../testlibs/DRACOLoader.js';
-import { LoadingBar } from '../testlibs/LoadingBar.js';
-import { GUI } from '../testlibs/lil-gui.module.min.js'
 
 class App{
 	constructor(){
@@ -42,7 +39,7 @@ class App{
         
         this.initScene();
         this.setupVR();
-        
+
         window.addEventListener('resize', this.resize.bind(this) );
 	}	
     
@@ -74,73 +71,38 @@ class App{
         }
 
         const btn = new ARButton( this.renderer );
-        this.loadGLTF();
+
         controller = this.renderer.xr.getController( 0 );
         controller.addEventListener( 'select', onSelect );
         this.scene.add( controller );
-        
+        this.loadGLTF();
         this.renderer.setAnimationLoop( this.render.bind(this) );
     }
     
-    loadGLTF(){
-        const loader = new GLTFLoader( ).setPath('../assets/');
+    loadGLTF() {
+        const loader = new GLTFLoader().setPath('../assets/');
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath( '../testlibs/draco/' );
-        loader.setDRACOLoader( dracoLoader );
+        dracoLoader.setDecoderPath('../testlibs/draco/');
+        loader.setDRACOLoader(dracoLoader);
 
-		// Load a glTF resource
-		loader.load(
-			// resource URL
-			'knight.glb',
-			// called when the resource is loaded
-			gltf => {
-                
-                
-                this.knight = gltf.scene;
+        loader.load('knight.glb', (gltf) => {
+            this.knight = gltf.scene;
 
-                this.knight.traverse( child => {
-                    if (child.isMesh && child.name == 'Cube') child.visible = false;
-                });
-                
-                this.mixer = new THREE.AnimationMixer( this.knight );
-                this.animations = {};
+            // Configura el modelo para AR
+            this.knight.position.set(0, 0, -0.5); // Ajusta la posición del modelo en AR
 
-                const names = [];
+            this.scene.add(this.knight);
 
-                gltf.animations.forEach( clip => {
-                    const name = clip.name.toLowerCase();
-                    names.push(name);
-                    this.animations[name] = clip;
-                })
+            this.mixer = new THREE.AnimationMixer(this.knight);
+            const danceClip = gltf.animations.find(clip => clip.name.toLowerCase() === 'dance');
+            if (danceClip) {
+                const action = this.mixer.clipAction(danceClip);
+                action.play(); // Reproduce la animación 'Dance' automáticamente
+            }
 
-                console.log( `animations: ${names.join(',')}`);
-                
-                this.action = 'look around';
-
-                const options = { name: 'look around' };
-
-                const gui = new GUI();
-                gui.add(options, 'name', names).onChange( name => { this.action = name });
-
-				this.scene.add( gltf.scene );
-                
-                this.loadingBar.visible = false;
-				
-				this.renderer.setAnimationLoop( this.render.bind(this));
-			},
-			// called while loading is progressing
-			xhr => {
-
-				this.loadingBar.progress = (xhr.loaded / xhr.total);
-				
-			},
-			// called when loading has errors
-			err => {
-
-				console.error( err.message );
-
-			}  
-        );
+        }, undefined, (err) => {
+            console.error('Error loading GLTF model', err);
+        });
     }
 
     resize(){
@@ -149,11 +111,12 @@ class App{
         this.renderer.setSize( window.innerWidth, window.innerHeight );  
     }
     
-	render( ) {   
-	const dt = this.clock.getDelta();
+	render( ) {
+
+        const dt = this.clock.getDelta();
         if (this.mixer) this.mixer.update(dt);
-        this.stats.update();
-        this.meshes.forEach( (mesh) => { mesh.rotateY( 0.01 ); });
+
+        this.meshes.forEach( (mesh) => { mesh.rotateY( 0.05 ); });
         this.renderer.render( this.scene, this.camera );
     }
 }
