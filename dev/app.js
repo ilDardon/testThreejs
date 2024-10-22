@@ -35,7 +35,8 @@ class App {
 
         this.initScene();
         this.setupVR();
-
+        this.loadGLTF();
+        
         window.addEventListener('resize', this.resize.bind(this));
     }
 
@@ -54,8 +55,6 @@ class App {
         // Crear botón de AR y agregarlo al documento
         const btn = ARButton.createButton(this.renderer);
         document.body.appendChild(btn);
-
-        const self = this;
         let controller;
 
         function onSelect() {
@@ -66,20 +65,14 @@ class App {
             mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
             mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
 
-            self.scene.add(mesh);
-            self.meshes.push(mesh);
+            this.scene.add(mesh);
+            this.meshes.push(mesh);
         }
 
         // Configurar el controlador para seleccionar objetos
         controller = this.renderer.xr.getController(0);
         controller.addEventListener('select', onSelect);
         this.scene.add(controller);
-
-        // Cargar el modelo del caballero cuando se active AR
-        this.renderer.xr.addEventListener('sessionstart', () => {
-            self.loadGLTF();
-        });
-
         this.renderer.setAnimationLoop(this.render.bind(this));
     }
 
