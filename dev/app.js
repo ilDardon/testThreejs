@@ -52,6 +52,7 @@ class App {
     }
 
     setupVR() {
+        console.log('Setting up VR');
         this.renderer.xr.enabled = true;
 
         const self = this;
@@ -81,6 +82,7 @@ class App {
     }
 
     loadGLTF() {
+        console.log('Loading GLTF');
         const loader = new GLTFLoader().setPath('../assets/');
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('../testlibs/draco/');
@@ -120,6 +122,7 @@ class App {
     }
 
     render(timestamp, frame) {
+        console.log('Rendering');
         this.stats.update();
         
         if (this.renderer.xr.isPresenting) {
