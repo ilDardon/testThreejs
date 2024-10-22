@@ -62,7 +62,7 @@ class App{
             mesh[1].quaternion.setFromRotationMatrix( controller.matrixWorld );
             mesh[2].position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
             mesh[2].quaternion.setFromRotationMatrix( controller.matrixWorld );
-            temporalMesh = mesh[(Math.floor(Math.random() * mesh.length))]
+            temporalMesh = mesh[(Math.floor(Math.random() * mesh.length))];
             self.scene.add( temporalMesh );
             self.meshes.push( temporalMesh );
 
