@@ -32,9 +32,8 @@ class App {
         this.controls.update();
 
         this.stats = new Stats();
-        document.body.appendChild(this.stats.dom);
 
-        this.loadingBar = new LoadingBar();
+        
         this.initScene();
         this.setupVR();
 
@@ -81,6 +80,7 @@ class App {
     }
 
     loadGLTF() {
+        this.loadingBar = new LoadingBar();
         const loader = new GLTFLoader().setPath('../assets/');
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('../testlibs/draco/');
