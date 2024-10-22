@@ -37,7 +37,7 @@ class App{
         // Estadísticas
         this.stats = new Stats();
 
-        this.loadingBar = new LoadingBar();
+       
         this.initScene();
         this.setupVR();
         
@@ -51,7 +51,7 @@ class App{
             new THREE.ConeBufferGeometry(0.1, 0.06, 64, 64)
         ];
         this.meshes = [];
-        this.loadGLTF();
+        
     }
     
     setupVR(){
@@ -68,6 +68,9 @@ class App{
             mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
             self.scene.add(mesh);
             self.meshes.push(mesh);
+
+	    this.loadingBar = new LoadingBar();
+	    this.loadGLTF();
         }
 
         const btn = new ARButton( this.renderer );
