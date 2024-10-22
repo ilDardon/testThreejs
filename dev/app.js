@@ -55,10 +55,7 @@ class App{
         let controller;
         
         function onSelect() {
-            const material = new THREE.MeshStandardMaterial({
-                color: 0xffffff * Math.random(),
-                metalness: 0.5
-            });
+	    const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random(), shininess: 0.7 } );
 
             const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
             const mesh = new THREE.Mesh(randomGeometry, material);
