@@ -5,7 +5,6 @@ import { ARButton } from '../libs/ARButton.js';
 
 import { GLTFLoader } from '../testlibs/GLTFLoader.js';
 import { DRACOLoader } from '../testlibs/DRACOLoader.js';
-import { RGBELoader } from '../testlibs/RGBELoader.js';
 import { LoadingBar } from '../testlibs/LoadingBar.js';
 import { GUI } from '../testlibs/lil-gui.module.min.js'
 
@@ -151,6 +150,8 @@ class App{
     }
     
 	render( ) {   
+	const dt = this.clock.getDelta();
+        if (this.mixer) this.mixer.update(dt);
         this.stats.update();
         this.meshes.forEach( (mesh) => { mesh.rotateY( 0.01 ); });
         this.renderer.render( this.scene, this.camera );
