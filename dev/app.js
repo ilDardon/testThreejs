@@ -35,8 +35,6 @@ class App{
         this.controls.target.set(0, 3.5, 0);
         this.controls.update();
         
-        this.stats = new Stats();
-        
         this.initScene();
         this.setupVR();
 
