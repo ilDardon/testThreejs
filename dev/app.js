@@ -64,13 +64,14 @@ class App {
             mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
             self.scene.add(mesh);
             self.meshes.push(mesh);
-
+        
             if (!self.knight) {
                 self.loadGLTF();
             }
         }
 
-        const btn = new ARButton(this.renderer, { sessionInit: { requiredFeatures: ['hit-test'], optionalFeatures: ['dom-overlay'], domOverlay: { root: document.body } } });
+        const btn = new ARButton(this.renderer, { sessionInit: { requiredFeatures: ['hit-test'] } });
+        document.body.appendChild(btn);
 
         controller = this.renderer.xr.getController(0);
         controller.addEventListener('select', onSelect);
