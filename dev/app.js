@@ -1,7 +1,7 @@
 import * as THREE from '../libs/three125/three.module.js';
 import { OrbitControls } from '../libs/three125/OrbitControls.js';
+import { Stats } from '../libs/stats.module.js';
 import { ARButton } from '../libs/ARButton.js';
-
 import { GLTFLoader } from '../testlibs/GLTFLoader.js';
 import { DRACOLoader } from '../testlibs/DRACOLoader.js';
 
@@ -13,7 +13,7 @@ class App {
         this.clock = new THREE.Clock();
 
         this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
-        
+
         this.scene = new THREE.Scene();
 
         this.scene.add(new THREE.HemisphereLight(0x606060, 0x404040));
@@ -33,10 +33,11 @@ class App {
         this.controls.target.set(0, 3.5, 0);
         this.controls.update();
 
+        this.stats = new Stats();
+
         this.initScene();
         this.setupVR();
-        this.loadGLTF();
-        
+
         window.addEventListener('resize', this.resize.bind(this));
     }
 
@@ -52,9 +53,7 @@ class App {
     setupVR() {
         this.renderer.xr.enabled = true;
 
-        // Crear botón de AR y agregarlo al documento
-        const btn = ARButton.createButton(this.renderer);
-        document.body.appendChild(btn);
+        const self = this;
         let controller;
 
         function onSelect() {
@@ -65,14 +64,24 @@ class App {
             mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
             mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
 
-            this.scene.add(mesh);
-            this.meshes.push(mesh);
+            self.scene.add(mesh);
+            self.meshes.push(mesh);
         }
+
+        // Crear botón de AR y agregarlo al documento
+        const btn = ARButton.createButton(this.renderer);
+        document.body.appendChild(btn);
 
         // Configurar el controlador para seleccionar objetos
         controller = this.renderer.xr.getController(0);
         controller.addEventListener('select', onSelect);
         this.scene.add(controller);
+
+        // Cargar el caballero después de que se inicia AR
+        this.renderer.xr.addEventListener('sessionstart', () => {
+            self.loadGLTF(); // Cargar caballero cuando AR se activa
+        });
+
         this.renderer.setAnimationLoop(this.render.bind(this));
     }
 
@@ -96,7 +105,6 @@ class App {
                 const action = this.mixer.clipAction(danceClip);
                 action.play(); // Reproduce la animación 'Dance' automáticamente
             }
-
         }, undefined, (err) => {
             console.error('Error loading GLTF model', err);
         });
@@ -109,10 +117,12 @@ class App {
     }
 
     render() {
+        this.stats.update();
+
         const dt = this.clock.getDelta();
         if (this.mixer) this.mixer.update(dt);
 
-        this.meshes.forEach((mesh) => { mesh.rotateY(0.05); });
+        this.meshes.forEach((mesh) => { mesh.rotateY(0.01); });
         this.renderer.render(this.scene, this.camera);
     }
 }
