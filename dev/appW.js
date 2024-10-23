@@ -55,10 +55,8 @@ class App{
         let controller;
         
         function onSelect() {
-
-	    var randomColor = Math.floor(Math.random()*16777215).toString(16);
 		
-	    const material = new THREE.MeshPhongMaterial( { color: randomColor, shininess: 0.7 } );
+	    const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random(), shininess: 0.7 } );
 
             const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
             const mesh = new THREE.Mesh(randomGeometry, material);
