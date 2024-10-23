@@ -45,41 +45,39 @@ class App {
     }
 
     setupVR() {
-        this.renderer.xr.enabled = true;
+    this.renderer.xr.enabled = true;
 
-        const self = this;
-        let controller;
+    const self = this;
+    let controller;
 
-        function onSelect(event) {
-            if (!self.knight) {
-                self.loadGLTF();
-            } else {
-                const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
-                const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
-                const mesh = new THREE.Mesh(randomGeometry, material);
-                
-                // Usar la posición del controlador para colocar la figura
-                mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
-                mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
-                
-                self.scene.add(mesh);
-                self.meshes.push(mesh);
-            }
+    function onSelect() {
+        if (!self.knight) {
+            self.loadGLTF();
+        } else {
+            const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
+            const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
+            const mesh = new THREE.Mesh(randomGeometry, material);
+            
+            // Use the controller's position to place the figure
+            mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
+            mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
+            
+            self.scene.add(mesh);
+            self.meshes.push(mesh);
         }
+    }
 
-        const btn = new ARButton(this.renderer, {
-            sessionInit: {
-                requiredFeatures: ['hit-test'],
-                optionalFeatures: ['dom-overlay'],
-                domOverlay: { root: document.body }
-            }
-        });
-        
-        controller = this.renderer.xr.getController(0);
-        controller.addEventListener('select', onSelect);
-        this.scene.add(controller);
-
-        this.renderer.setAnimationLoop(this.render.bind(this));
+    const btn = new ARButton(this.renderer, {
+        sessionInit: {
+            requiredFeatures: ['hit-test'],
+            optionalFeatures: ['dom-overlay'],
+            domOverlay: { root: document.body }
+        }
+    });
+    
+    controller = this.renderer.xr.getController(0);
+    controller.addEventListener('select', onSelect);
+    this.scene.add(controller);
     }
 
     loadGLTF() {
