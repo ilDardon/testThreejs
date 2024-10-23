@@ -42,8 +42,8 @@ class App{
     initScene(){
         this.geometries = [
             new THREE.BoxBufferGeometry(0.1, 0.1, 0.1),
-            new THREE.SphereBufferGeometry(0.1, 64, 64),
-            new THREE.ConeBufferGeometry(0.1, 0.2, 3, 64)
+            new THREE.SphereBufferGeometry(0.1, 48, 48),
+            new THREE.ConeBufferGeometry(0.1, 0.2, 4, 32)
         ];
         this.meshes = [];
     }
@@ -55,11 +55,14 @@ class App{
         let controller;
         
         function onSelect() {
-	    const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random(), shininess: 0.7 } );
+
+	    var randomColor = Math.floor(Math.random()*16777215).toString(16);
+		
+	    const material = new THREE.MeshPhongMaterial( { color: randomColor, shininess: 0.7 } );
 
             const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
             const mesh = new THREE.Mesh(randomGeometry, material);
-            mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
+            mesh.position.set(0, 0, -0.5).applyMatrix4(controller.matrixWorld);
             mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
 
             self.scene.add(mesh);
