@@ -51,6 +51,9 @@ class App {
         let controller;
 
         function onSelect(event) {
+            if (!self.knight) {
+                self.loadGLTF();
+            } else{
             const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
             const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
             const mesh = new THREE.Mesh(randomGeometry, material);
@@ -61,27 +64,30 @@ class App {
             
             self.scene.add(mesh);
             self.meshes.push(mesh);
+            }
         }
 
-        const btn = new ARButton(this.renderer, { 
-            sessionInit: { 
-                requiredFeatures: ['hit-test'],
-                optionalFeatures: ['dom-overlay'],
-                domOverlay: { root: document.body }
-            } 
-        });
-        document.body.appendChild(btn);
+        const btn = new ARButton( this.renderer );
+        
+        controller = this.renderer.xr.getController( 0 );
+        controller.addEventListener( 'select', onSelect );
+        this.scene.add( controller );
+        
+        this.renderer.setAnimationLoop( this.render.bind(this) );
+    }
 
-        controller = this.renderer.xr.getController(0);
-        controller.addEventListener('select', onSelect);
-        this.scene.add(controller);
 
-        this.renderer.xr.addEventListener('sessionstart', () => {
-            console.log('AR session started');
-            this.loadGLTF();
-        });
 
-        this.renderer.setAnimationLoop(this.render.bind(this));
+
+
+
+
+
+
+
+
+
+        
     }
 
     loadGLTF() {
