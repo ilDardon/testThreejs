@@ -38,8 +38,8 @@ class App {
     initScene() {
         this.geometries = [
             new THREE.BoxBufferGeometry(0.1, 0.1, 0.1),
-            new THREE.SphereBufferGeometry(0.1, 64, 64),
-            new THREE.ConeBufferGeometry(0.05, 0.1, 64, 64)
+            new THREE.SphereBufferGeometry(0.1, 48, 48),
+            new THREE.ConeBufferGeometry(0.1, 0.15, 4, 32)
         ];
         this.meshes = [];
     }
@@ -53,26 +53,33 @@ class App {
         function onSelect(event) {
             if (!self.knight) {
                 self.loadGLTF();
-            } else{
-            const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
-            const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
-            const mesh = new THREE.Mesh(randomGeometry, material);
-            
-            // Usar la posición del controlador para colocar la figura
-            mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
-            mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
-            
-            self.scene.add(mesh);
-            self.meshes.push(mesh);
+            } else {
+                const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
+                const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
+                const mesh = new THREE.Mesh(randomGeometry, material);
+                
+                // Usar la posición del controlador para colocar la figura
+                mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
+                mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
+                
+                self.scene.add(mesh);
+                self.meshes.push(mesh);
             }
         }
 
-        const btn = new ARButton( this.renderer );
+        const btn = new ARButton(this.renderer, {
+            sessionInit: {
+                requiredFeatures: ['hit-test'],
+                optionalFeatures: ['dom-overlay'],
+                domOverlay: { root: document.body }
+            }
+        });
         
-        controller = this.renderer.xr.getController( 0 );
-        controller.addEventListener( 'select', onSelect );
-        this.scene.add( controller );
-        this.renderer.setAnimationLoop( this.render.bind(this) );
+        controller = this.renderer.xr.getController(0);
+        controller.addEventListener('select', onSelect);
+        this.scene.add(controller);
+
+        this.renderer.setAnimationLoop(this.render.bind(this));
     }
 
     loadGLTF() {
