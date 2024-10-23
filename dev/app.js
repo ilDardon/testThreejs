@@ -23,6 +23,7 @@ class App {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.xr.enabled = true;
         container.appendChild(this.renderer.domElement);
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -37,50 +38,62 @@ class App {
 
     initScene() {
         this.geometries = [
-            new THREE.BoxBufferGeometry(0.1, 0.1, 0.1),
-            new THREE.SphereBufferGeometry(0.1, 64, 64),
-            new THREE.ConeBufferGeometry(0.05, 0.1, 64, 64)
+            new THREE.BoxGeometry(0.1, 0.1, 0.1),
+            new THREE.SphereGeometry(0.1, 64, 64),
+            new THREE.ConeGeometry(0.05, 0.1, 64, 64)
         ];
         this.meshes = [];
     }
 
     setupVR() {
-    this.renderer.xr.enabled = true;
+        const self = this;
+        let controller;
 
-    const self = this;
-    let controller;
-
-    function onSelect() {
-        if (!self.knight) {
-            self.loadGLTF();
-        } else {
-            const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
-            const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
-            const mesh = new THREE.Mesh(randomGeometry, material);
-            
-            // Use the controller's position to place the figure
-            mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
-            mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
-            
-            self.scene.add(mesh);
-            self.meshes.push(mesh);
+        function onSelect() {
+            if (!self.knight) {
+                console.log('Loading knight model');
+                self.loadGLTF();
+            } else {
+                console.log('Creating random shape');
+                const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
+                const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
+                const mesh = new THREE.Mesh(randomGeometry, material);
+                
+                mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
+                mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
+                
+                self.scene.add(mesh);
+                self.meshes.push(mesh);
+            }
         }
-    }
 
-    const btn = new ARButton(this.renderer, {
-        sessionInit: {
+        const sessionInit = {
             requiredFeatures: ['hit-test'],
             optionalFeatures: ['dom-overlay'],
             domOverlay: { root: document.body }
-        }
-    });
-    
-    controller = this.renderer.xr.getController(0);
-    controller.addEventListener('select', onSelect);
-    this.scene.add(controller);
+        };
+
+        const btn = ARButton.createButton(this.renderer, sessionInit);
+        document.body.appendChild(btn);
+        
+        controller = this.renderer.xr.getController(0);
+        controller.addEventListener('select', onSelect);
+        this.scene.add(controller);
+
+        this.renderer.xr.addEventListener('sessionstart', () => {
+            console.log('AR session started');
+            self.loadGLTF();
+        });
+
+        this.renderer.xr.addEventListener('sessionend', () => {
+            console.log('AR session ended');
+        });
+
+        this.renderer.setAnimationLoop(this.render.bind(this));
     }
 
     loadGLTF() {
+        console.log('Starting to load GLTF');
         this.loadingBar = new LoadingBar();
         const loader = new GLTFLoader().setPath('../assets/');
         const dracoLoader = new DRACOLoader();
@@ -93,7 +106,6 @@ class App {
                 console.log('GLTF model loaded successfully');
                 this.knight = gltf.scene;
                 
-                // Ajustar la escala y posición del caballero
                 this.knight.scale.set(0.5, 0.5, 0.5);
                 this.knight.position.set(0, 0, -1);
                 
@@ -116,7 +128,7 @@ class App {
                 this.loadingBar.progress = (xhr.loaded / xhr.total);
             },
             err => {
-                console.error('An error happened:', err);
+                console.error('An error happened while loading the GLTF:', err);
             }
         );
     }
