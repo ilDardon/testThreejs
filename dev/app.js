@@ -72,22 +72,7 @@ class App {
         controller = this.renderer.xr.getController( 0 );
         controller.addEventListener( 'select', onSelect );
         this.scene.add( controller );
-        
         this.renderer.setAnimationLoop( this.render.bind(this) );
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-        
     }
 
     loadGLTF() {
