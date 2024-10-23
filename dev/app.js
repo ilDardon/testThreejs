@@ -1,11 +1,10 @@
 import * as THREE from '../libs/three125/three.module.js';
-import { OrbitControls } from '../libs/three125/OrbitControls.js';
 import { Stats } from '../libs/stats.module.js';
 import { ARButton } from '../libs/ARButton.js';
-
-import { LoadingBar } from '../testlibs/LoadingBar.js';
-import { GLTFLoader } from '../testlibs/GLTFLoader.js';
-import { DRACOLoader } from '../testlibs/DRACOLoader.js';
+import { LoadingBar } from '../libs/LoadingBar.js';
+import { OrbitControls } from '../libs/three125/OrbitControls.js';
+import { GLTFLoader } from '../libs/three125/GLTFLoader.js';
+import { DRACOLoader } from '../libs/three125/DRACOLoader.js';
 
 class App {
     constructor() {
@@ -83,7 +82,7 @@ class App {
         this.loadingBar = new LoadingBar();
         const loader = new GLTFLoader().setPath('../assets/');
         const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('../testlibs/draco/');
+        dracoLoader.setDecoderPath('../libs/three125/draco/');
         loader.setDRACOLoader(dracoLoader);
 
         loader.load(
