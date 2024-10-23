@@ -1,5 +1,4 @@
 import * as THREE from '../libs/three125/three.module.js';
-import { Stats } from '../libs/stats.module.js';
 import { ARButton } from '../libs/ARButton.js';
 import { LoadingBar } from '../libs/LoadingBar.js';
 import { OrbitControls } from '../libs/three125/OrbitControls.js';
@@ -30,9 +29,6 @@ class App {
         this.controls.target.set(0, 3.5, 0);
         this.controls.update();
 
-        this.stats = new Stats();
-
-        
         this.initScene();
         this.setupVR();
 
@@ -54,26 +50,36 @@ class App {
         const self = this;
         let controller;
 
-        function onSelect() {
+        function onSelect(event) {
             const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random(), shininess: 0.7 });
             const randomGeometry = self.geometries[Math.floor(Math.random() * self.geometries.length)];
             const mesh = new THREE.Mesh(randomGeometry, material);
+            
+            // Usar la posición del controlador para colocar la figura
             mesh.position.set(0, 0, -0.3).applyMatrix4(controller.matrixWorld);
             mesh.quaternion.setFromRotationMatrix(controller.matrixWorld);
+            
             self.scene.add(mesh);
             self.meshes.push(mesh);
-        
-            if (!self.knight) {
-                self.loadGLTF();
-            }
         }
 
-        const btn = new ARButton(this.renderer, { sessionInit: { requiredFeatures: ['hit-test'] } });
+        const btn = new ARButton(this.renderer, { 
+            sessionInit: { 
+                requiredFeatures: ['hit-test'],
+                optionalFeatures: ['dom-overlay'],
+                domOverlay: { root: document.body }
+            } 
+        });
         document.body.appendChild(btn);
 
         controller = this.renderer.xr.getController(0);
         controller.addEventListener('select', onSelect);
         this.scene.add(controller);
+
+        this.renderer.xr.addEventListener('sessionstart', () => {
+            console.log('AR session started');
+            this.loadGLTF();
+        });
 
         this.renderer.setAnimationLoop(this.render.bind(this));
     }
@@ -88,12 +94,19 @@ class App {
         loader.load(
             'knight.glb',
             gltf => {
+                console.log('GLTF model loaded successfully');
                 this.knight = gltf.scene;
-                this.knight.position.set(0, 0, -0.5);
+                
+                // Ajustar la escala y posición del caballero
+                this.knight.scale.set(0.5, 0.5, 0.5);
+                this.knight.position.set(0, 0, -1);
+                
                 this.scene.add(this.knight);
+                console.log('Knight added to the scene');
 
                 this.mixer = new THREE.AnimationMixer(this.knight);
                 if (gltf.animations && gltf.animations.length > 0) {
+                    console.log(`Found ${gltf.animations.length} animations`);
                     const clip = gltf.animations[0];
                     this.action = this.mixer.clipAction(clip);
                     this.action.play();
@@ -119,8 +132,6 @@ class App {
     }
 
     render(timestamp, frame) {
-        this.stats.update();
-        
         if (this.renderer.xr.isPresenting) {
             const session = this.renderer.xr.getSession();
             const pose = frame.getViewerPose(session.referenceSpace);
